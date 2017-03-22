@@ -17,7 +17,7 @@
 #define TIMER_INTERVAL 100
 
 // SPI device by default
-#define SPI_DEVICE "/dev/spidev0.0"
+#define SPI_DEVICE "/dev/spidev1.0"
 
 // SPI max speed by default [Hz]
 #define SPI_SPEED 2400000
@@ -229,10 +229,12 @@ static int timer_handler(void *context)
   if (o->cs >= 0)
   {
     // up GPIO pin
-    sgpio_set(gpio, !o->negative);
+    //sgpio_set(gpio, !o->negative);
 
     // down GPIO pin
-    sgpio_set(gpio, o->negative);
+    //sgpio_set(gpio, o->negative);
+    
+    sgpio_set(gpio, self->counter & 1);
   }
 
   // write to SPI device
