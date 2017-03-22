@@ -22,8 +22,8 @@
 // SPI max speed by default [Hz]
 #define SPI_SPEED 2400000
 
-// SPI CS number of GPIO channel by default (>=0 or -1 to unuse)
-#define SPI_CS -1
+// GPIO channel connected to RCK by default (>=0 or -1 to unuse)
+#define RCK_GPIO 18
 //-----------------------------------------------------------------------------
 // command line options
 typedef struct options_ {
@@ -33,7 +33,7 @@ typedef struct options_ {
   int mode;           // flash mode (>=0)
   const char *device; // SPI device name like "/dev/spidev0.0"
   int speed;          // SPI max speed [Hz]
-  int cs;             // SPI CS number of GPIO channel (>=0 or -1 to unuse)
+  int rck;            // GPIO channel connected to RCK (>=0 or -1 to unuse)
   int negative;       // negative output {0|1}
   int realtime;       // real time mode {0|1}
 } options_t;
@@ -71,11 +71,12 @@ static void help()
     "    -v|--verbose       - verbose output\n"
     "   -vv|--more-verbose  - more verbose output (or use -v twice)\n"
     "  -vvv|--much-verbose  - much more verbose output (or use -v thrice)\n"
-    "    -d|--data          - output delay statistic to stdout (no verbose)\n"
+    "    -D|--data          - output delay statistic to stdout (no verbose)\n"
     "    -m|--mode          - flash mode number (uint)\n"  
-    "    -D|--spi-dev       - SPI device name like '/dev/spidev0.0'\n"
-    "    -S|--spi-speed     - SPI max speed [Hz]\n"
-    "   -CS|--spi-cs-gpio   - SPI number of GPIO channel (-1 to unuse)\n"
+    "    -d|--spi-dev       - SPI device name like '/dev/spidev0.0'\n"
+    "    -s|--spi-speed     - SPI max speed [Hz]\n"
+    "    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595"
+                              " (-1 to unuse)\n"
     "    -n|--negative      - negative output\n"
     "    -r|--real-time     - real time mode (root required)\n"
     "interval-ms            - timer interval in ms (%i by default)\n",
@@ -95,7 +96,7 @@ static void parse_options(int argc, const char *argv[], options_t *o)
   o->mode      = 0;              // flash mode (>=0)
   o->device    = SPI_DEVICE;     // SPI device name
   o->speed     = SPI_SPEED;      // SPI max speed [Hz]
-  o->cs        = SPI_CS;         // number of GPIO channel
+  o->rck       = RCK_GPIO;       // GPIO channel connected to RCK
   o->negative  = 0;              // negative output {0|1}
   o->realtime  = 0;              // real time mode {0|1}
 
@@ -127,7 +128,7 @@ static void parse_options(int argc, const char *argv[], options_t *o)
         o->verbose = 3;
         o->data    = 0;
       }
-      else if (!strcmp(argv[i], "-d") ||
+      else if (!strcmp(argv[i], "-D") ||
                !strcmp(argv[i], "--data"))
       { // output packet statistic to stdout
         o->verbose = 0;
@@ -140,24 +141,24 @@ static void parse_options(int argc, const char *argv[], options_t *o)
         o->mode = atoi(argv[i]);
         if (o->mode < 0) o->mode = 0;
       }
-      else if (!strcmp(argv[i], "-D") ||
+      else if (!strcmp(argv[i], "-d") ||
                !strcmp(argv[i], "--spi-dev"))
       { // SPI device
         if (++i >= argc) usage();
         o->device = argv[i];
       }
-      else if (!strcmp(argv[i], "-S") ||
+      else if (!strcmp(argv[i], "-s") ||
                !strcmp(argv[i], "--spi-speed"))
       { // SPI max speed
         if (++i >= argc) usage();
         o->speed = atoi(argv[i]);
         if (o->speed < 0) o->speed = 0;
       }
-      else if (!strcmp(argv[i], "-CS") ||
-               !strcmp(argv[i], "--spi-cs"))
-      { // SPI CS gpio number
+      else if (!strcmp(argv[i], "-g") ||
+               !strcmp(argv[i], "--rck-gpio"))
+      { // GPIO channel connected to RCK
         if (++i >= argc) usage();
-        o->cs = atoi(argv[i]);
+        o->rck = atoi(argv[i]);
       }
       else if (!strcmp(argv[i], "-n") ||
                !strcmp(argv[i], "--negative"))
@@ -225,18 +226,6 @@ static int timer_handler(void *context)
     if (self->dt_min > dt) self->dt_min = dt;
   }
 
-  //!!! FIXME
-  if (o->cs >= 0)
-  {
-    // up GPIO pin
-    //sgpio_set(gpio, !o->negative);
-
-    // down GPIO pin
-    //sgpio_set(gpio, o->negative);
-    
-    sgpio_set(gpio, self->counter & 1);
-  }
-
   // write to SPI device
   if (1) //!!! FIXME
   {
@@ -251,6 +240,14 @@ static int timer_handler(void *context)
       printf(">>> spi_write(1024) return %d\n", i);
   }
   
+  // form impulse of storage register clock (RCK)
+  if (o->rck >= 0 && 1) //!!! FIXME
+  {
+    sgpio_set(gpio, 1); // up   GPIO RCK pin
+    sgpio_set(gpio, 0); // down GPIO RCK pin
+    //!!!sgpio_set(gpio, self->counter & 1);
+  }
+
   // output delay statistics
   if (self->state > 1 && o->data)
   { // #counter #daytime #dt_min #dt_max #dt
@@ -303,7 +300,7 @@ int main(int argc, const char *argv[])
     printf("-->   flash mode      = %i\n",    o->mode);
     printf("-->   SPI device name = '%s'\n",  o->device);
     printf("-->   SPI max speed   = %i\n",    o->speed);
-    printf("-->   SPI CS GPIO     = %i\n",    o->cs);
+    printf("-->   RCK GPIO num    = %i\n",    o->rck);
     printf("-->   negative        = %s\n",    o->negative ? "yes" : "no");
     printf("-->   real time       = %s\n",    o->realtime ? "yes" : "no");
   }
@@ -329,27 +326,27 @@ int main(int argc, const char *argv[])
       printf(">>> stimer_realtime() return %d\n", retv);
   }
 
-  if (o->cs >= 0)
+  if (o->rck >= 0)
   {
-    // init GPIO port for CS
-    sgpio_init(gpio, o->cs);
+    // init GPIO port for RCK
+    sgpio_init(gpio, o->rck);
     if (o->verbose >= 3)
-      printf(">>> sgpio_init(%d) finish\n", o->cs);
+      printf(">>> sgpio_init(%d) finish\n", o->rck);
 
     if (1) // unexport
     {
-      retv = sgpio_unexport(o->cs);
+      retv = sgpio_unexport(o->rck);
       if (o->verbose >= 3)
         printf(">>> sgpio_unexport(%d) return '%s'\n",
-               o->cs, sgpio_error_str(retv));
+               o->rck, sgpio_error_str(retv));
     }
 
     if (1) // export
     {
-      retv = sgpio_export(o->cs);
+      retv = sgpio_export(o->rck);
       if (o->verbose >= 3)
         printf(">>> sgpio_export(%d) return '%s'\n",
-               o->cs, sgpio_error_str(retv));
+               o->rck, sgpio_error_str(retv));
     }
 
     // set GPIO mode
@@ -359,13 +356,13 @@ int main(int argc, const char *argv[])
              sgpio_num(gpio), SGPIO_DIR_OUT, SGPIO_EDGE_NONE,
              sgpio_error_str(retv));
    
-    // set CS to initial state
-    retv = sgpio_set(gpio, 1); // FIXME
+    // set RCK to initial zero state
+    retv = sgpio_set(gpio, 0);
     if (o->verbose >= 3)
       printf(">>> sgpio_set(%i,%i) return '%s'\n",
              sgpio_num(gpio), o->negative,
              sgpio_error_str(retv));
-  } // if (o->cs >= 0)
+  } // if (o->rck >= 0)
   
   // setup SPI
   retv = spi_init(spi,
@@ -417,7 +414,7 @@ int main(int argc, const char *argv[])
   spi_free(spi);
 
   // free GPIO
-  if (o->cs >= 0)
+  if (o->rck >= 0)
   {
     if (1) // set GPIO to input (more safe mode)
     {
@@ -430,15 +427,15 @@ int main(int argc, const char *argv[])
 
     if (1) // unexport GPIO
     {
-      retv = sgpio_unexport(o->cs);
+      retv = sgpio_unexport(o->rck);
       if (o->verbose >= 3)
         printf(">>> sgpio_unexport(%d) return '%s'\n",
-               o->cs, sgpio_error_str(retv));
+               o->rck, sgpio_error_str(retv));
     }
 
     // free GPIO
     sgpio_free(gpio);
-  } // if (o->cs >= 0)
+  } // if (o->rck >= 0)
 
   // show delay statistics
   fout = o->data ? stderr : stdout;
