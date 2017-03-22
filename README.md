@@ -12,9 +12,9 @@ Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero
   spiled.c - main applicaton module
 
 ## Orange Pi Zero 26 pin connector:
- | GPIO | Signal |Physical | Signal  | GPIO |
- | num  | name   | pin num | name    | num  |
- |:----:|-------:|---:|:---|:--------|:----:|
+
+ | GPIO | Signal |Pin |Pin | Signal  | GPIO |
+ |:----:| ------:| --:|:-- |:------- |:----:|
  |      |   3.3V |  1 | 2  | 5V      |      |
  |  12  |  SDA.0 |  3 | 4  | 5V      |      |
  |  11  |  SCL.0 |  5 | 6  | 0V      |      |
@@ -29,32 +29,33 @@ Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero
  |  14  |   SCLK | 23 | 24 | CE0     | 13   |
  |      |     0v | 25 | 26 | GPIO.11 | 10   |
 
-## 74HC595 schematic:
- | Signal |  DIP-16  | Signal |            Signal              |
- |  name  |   pins   |  name  |          description           |
- |--------|----||----|--------|--------------------------------|
- |   QB   | 1  || 16 |  VCC   | VCC/GND - power +3.3...+5.0V   |
- |   QC   | 2  || 15 |  QA    | QA...QH - output               |
- |   QD   | 3  || 14 |  SI    | SI      - serial data input    |
- |   QE   | 4  || 13 |  nG    | nG      - Z output if '1'      |
- |   QF   | 5  || 12 |  RCK   | RCK     - storage reg. clock   |
- |   QG   | 6  || 11 |  SCK   | SCK     - shift reg. clock     |
- |   QH   | 7  || 10 |  nSCLR | nSCLR   - neg.reset shift reg. |
- |   GND  | 8  ||  9 |  QH'   | QH'     - serial data output   |
+## 74HC595 DIP-16 schematic:
+
+ | Signal | Pin | Pin | Signal |           Description            |
+ |:------:| ---:|:--- |:------:| -------------------------------- |
+ |   QB   |  1  | 16  |  VCC   | `VCC/GND - power +3.3...+5.0V`   |
+ |   QC   |  2  | 15  |  QA    | `QA...QH - output`               |
+ |   QD   |  3  | 14  |  SI    | `SI      - serial data input`    |
+ |   QE   |  4  | 13  |  nG    | `nG      - Z output if '1'`      |
+ |   QF   |  5  | 12  |  RCK   | `RCK     - storage reg. clock`   |
+ |   QG   |  6  | 11  |  SCK   | `SCK     - shift reg. clock`     |
+ |   QH   |  7  | 10  |  nSCLR | `nSCLR   - neg.reset shift reg.` |
+ |   GND  |  8  |  9  |  QH'   | `QH'     - serial data output`   |
 
 ## How to conect 74HC595 to Orange Pi zero
- | 74HC595 | 74HC595 |         Pi Zero          |  Pi zero    |
- |  signal |   pin   |           pin            | signal/GPIO |
- |:-------:|:-------:|:-------------------------|:------------|
- |  GND    |    8    | 25,20,14,9 or 6          | 0V          |
- |  VCC    |   16    | 1,17 (3.3V) or 2,4 (5V)  | 3.3V or 5V  |
- |  SI     |   14    | 19                       | MOSI        |
- |  SCK    |   11    | 23                       | SCLK        |
- |  RCK    |   12    | 18                       | GPIO-18     |
- |  nG     |   13    | any 0V/GND               | 0V          |
- |  nSCLR  |   10    | any VCC via pull up res. | 3.3V or 5V  |
- |  QH'    |   9     | not connected            |             |
+
+ | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
+ |:--------------:|:-----------:| ------------------------ | -------------- |
+ |      GND       |      8      | 25,20,14,9 or 6          | 0V             |
+ |      VCC       |     16      | 1,17 (3.3V) or 2,4 (5V)  | 3.3V or 5V     |
+ |      SI        |     14      | 19                       | MOSI           |
+ |      SCK       |     11      | 23                       | SCLK           |
+ |      RCK       |     12      | 18                       | GPIO-18        |
+ |      nG        |     13      | any 0V/GND               | 0V             |
+ |      nSCLR     |     10      | any VCC via pull up res. | 3.3V or 5V     |
+ |      QH'       |      9      | not connected            |                |
 
 ## How to connect LEDs to 74HC595
+
  LEDs connected to 15 and 1-7 pins via resistors (200...330 Ohm)
 
