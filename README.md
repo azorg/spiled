@@ -42,7 +42,7 @@ Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero
  |   QH   |  7  | 10  |  nSCLR | nSCLR   - neg.reset shift reg. |
  |   GND  |  8  |  9  |  QH'   | QH'     - serial data output   |
 
-## How to conect 74HC595 to Orange Pi zero
+## How to connect 74HC595 to Orange Pi zero
 
  | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
  |:--------------:|:-----------:| ------------------------ |:--------------:|
