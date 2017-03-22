@@ -232,10 +232,11 @@ static int timer_handler(void *context)
     int i;
     char buf[1024];
   
-    for (i = 0; i < 1024; i++)
-      buf[i] = 0x55;
+    //for (i = 0; i < 1024; i++)
+    //  buf[i] = 0x55;
+    buf[0] = (char) self->counter & 0xFF;
 
-    i = spi_write(spi, buf, 1024);
+    i = spi_write(spi, buf, 1);
     if (o->verbose >= 3)
       printf(">>> spi_write(1024) return %d\n", i);
   }
