@@ -37,6 +37,7 @@
 #  define SGPIO_INLINE static inline
 #endif // SGPIO_INLINE
 //----------------------------------------------------------------------------
+//#define SGPIO_DEBUG // FIXME
 #ifdef SGPIO_DEBUG
 #  include <stdio.h>  // fprintf()
 #    define SGPIO_DBG(fmt, arg...) fprintf(stderr, "SGPIO: " fmt "\n", ## arg)
