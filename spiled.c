@@ -236,8 +236,8 @@ static int timer_handler(void *context)
     int i;
     char buf[2];
   
-    buf[0] = (char) ( self->counter       & 0xFF);
-    buf[1] = (char) ((self->counter >> 8) & 0xFF);
+    buf[1] = (char) ( self->counter       & 0xFF);
+    buf[0] = (char) ((self->counter >> 8) & 0xFF);
 
     if (o->negative)
     {
@@ -245,9 +245,13 @@ static int timer_handler(void *context)
       buf[1] ^= 0xFF;
     }
 
-    i = spi_write(spi, buf, o->num);
+    if (o->num == 1)
+      i = spi_write(spi, &buf[1], 1);
+    else // o->num == 2
+      i = spi_write(spi, &buf[0], 2);
+
     if (o->verbose >= 3)
-      printf(">>> spi_write(1024) return %d\n", i);
+      printf(">>> spi_write(%d) return %d\n", o->num, i);
   }
   
   // form impulse of storage register clock (RCK)
