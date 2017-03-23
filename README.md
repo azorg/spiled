@@ -58,7 +58,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 ## How to connect LEDs to 74HC595 (one or two)
 
  8-16 LEDs connected to 15 and 1-7 pins 74HC595 via limit current
- resistors (50..300 Ohm)
+ resistors (~100 Ohm)
 
 ## How to build application
 
