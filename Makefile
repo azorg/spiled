@@ -18,7 +18,7 @@ OPTIM   := -Os
 WARN    := -Wall -Wno-pointer-to-int-cast
 CFLAGS  := $(WARN) $(OPTIM) $(DEFS) $(CFLAGS) -pipe
 LDFLAGS := -lm -lrt -ldl -lpthread $(LDFLAGS)
-PREFIX  := /opt
+PREFIX  := /usr/local
 #----------------------------------------------------------------------------
 #_AS  := @as
 #_CC  := @gcc

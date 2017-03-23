@@ -47,7 +47,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
   | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
   |:--------------:|:-----------:| ------------------------ |:--------------:|
   |      GND       |      8      | 25,20,14,9 or 6          | 0V             |
-  |      VCC       |     16      | 1,17 (3.3V) or 2,4 (5V)  | 3.3V or 5V     |
+  |      VCC       |     16      | 1,17 (3.3V)              | 3.3V           |
   |      SI        |     14      | 19                       | MOSI           |
   |      SCK       |     11      | 23                       | SCLK           |
   |      RCK       |     12      | 18                       | GPIO-18        |
@@ -59,4 +59,36 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 
   8-16 LEDs connected to 15 and 1-7 pins 74HC595 via limit current
   resistors (200..300 Ohm)
+
+## How to build application
+
+  Run `make`:
+
+> make
+
+  Or use `_make.sh`:
+
+> ./_make.sh
+
+## How to install and run, programm command line options
+
+  Run `make install` to install to `/usr/local/bin`
+  or run `spiled` from current directory.
+
+```
+Run:  spiled [-options] [interval-ms]
+Options:
+    -h|--help          - show this help
+    -v|--verbose       - verbose output
+   -vv|--more-verbose  - more verbose output (or use -v twice)
+  -vvv|--much-verbose  - much more verbose output (or use -v thrice)
+    -S|--stat          - output delay statistic to stdout (no verbose)
+    -m|--reg-num       - number of 74HC595 [1-2]
+    -d|--spi-dev       - SPI device name like '/dev/spidev0.0'
+    -s|--spi-speed     - SPI max speed [Hz]
+    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595 (-1 to unuse)
+    -n|--negative      - negative output
+    -r|--real-time     - real time mode (root required)
+interval-ms            - timer interval in ms (100 by default)
+```
 
