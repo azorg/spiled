@@ -22,7 +22,7 @@
 // SPI max speed by default [Hz]
 #define SPI_SPEED 2400000
 
-// GPIO channel connected to RCK by default (>=0 or -1 to unuse)
+// GPIO channel connected to RCK by default (>=0 or -1 to don't use)
 #define RCK_GPIO 18
 
 // number of 74HC595 registors by default (1 or 2)
@@ -36,7 +36,7 @@ typedef struct options_ {
   int num;            // number of 74HC595 registors (1 or 2)
   const char *device; // SPI device name like "/dev/spidev0.0"
   int speed;          // SPI max speed [Hz]
-  int rck;            // GPIO channel connected to RCK (>=0 or -1 to unuse)
+  int rck;            // GPIO channel connected to RCK (>=0 or -1 to don't use)
   int negative;       // negative output {0|1}
   int realtime;       // real time mode {0|1}
 } options_t;
@@ -79,7 +79,7 @@ static void help()
     "    -d|--spi-dev       - SPI device name like '/dev/spidev0.0'\n"
     "    -s|--spi-speed     - SPI max speed [Hz]\n"
     "    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595"
-                              " (-1 to unuse)\n"
+                              " (-1 to don't use)\n"
     "    -n|--negative      - negative output\n"
     "    -r|--real-time     - real time mode (root required)\n"
     "interval-ms            - timer interval in ms (%i by default)\n",

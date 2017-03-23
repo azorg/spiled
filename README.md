@@ -88,7 +88,7 @@ Options:
     -m|--reg-num       - number of 74HC595 registors (1 or 2)
     -d|--spi-dev       - SPI device name like '/dev/spidev0.0'
     -s|--spi-speed     - SPI max speed [Hz]
-    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595 (-1 to unuse)
+    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595 (-1 to don't use)
     -n|--negative      - negative output
     -r|--real-time     - real time mode (root required)
 interval-ms            - timer interval in ms (100 by default)
