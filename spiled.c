@@ -24,13 +24,16 @@
 
 // GPIO channel connected to RCK by default (>=0 or -1 to unuse)
 #define RCK_GPIO 18
+
+// number of 74HC595 [1-2]
+#define REG_NUM 1
 //-----------------------------------------------------------------------------
 // command line options
 typedef struct options_ {
   int interval;       // time interval [ms]
   int verbose;        // verbose level {0,1,2,3}
-  int data;           // output delay statistic to stdout {0|1}
-  int mode;           // flash mode (>=0)
+  int stat;           // output delay statistic to stdout {0|1}
+  int num;            // number of 74HC595 [1-2]
   const char *device; // SPI device name like "/dev/spidev0.0"
   int speed;          // SPI max speed [Hz]
   int rck;            // GPIO channel connected to RCK (>=0 or -1 to unuse)
@@ -71,8 +74,8 @@ static void help()
     "    -v|--verbose       - verbose output\n"
     "   -vv|--more-verbose  - more verbose output (or use -v twice)\n"
     "  -vvv|--much-verbose  - much more verbose output (or use -v thrice)\n"
-    "    -D|--data          - output delay statistic to stdout (no verbose)\n"
-    "    -m|--mode          - flash mode number (uint)\n"  
+    "    -S|--stat          - output delay statistic to stdout (no verbose)\n"
+    "    -m|--reg-num       - number of 74HC595 [1-2]\n"
     "    -d|--spi-dev       - SPI device name like '/dev/spidev0.0'\n"
     "    -s|--spi-speed     - SPI max speed [Hz]\n"
     "    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595"
@@ -92,8 +95,8 @@ static void parse_options(int argc, const char *argv[], options_t *o)
   // set options by default
   o->interval  = TIMER_INTERVAL; // time interval [ms]
   o->verbose   = 0;              // verbose level {0,1,2,3}
-  o->data      = 0;              // output delay statistic to stdout {0|1}
-  o->mode      = 0;              // flash mode (>=0)
+  o->stat      = 0;              // output delay statistic to stdout {0|1}
+  o->num       = REG_NUM;        // number of 74HC595 [1-2]
   o->device    = SPI_DEVICE;     // SPI device name
   o->speed     = SPI_SPEED;      // SPI max speed [Hz]
   o->rck       = RCK_GPIO;       // GPIO channel connected to RCK
@@ -114,32 +117,33 @@ static void parse_options(int argc, const char *argv[], options_t *o)
                !strcmp(argv[i], "--verbose"))
       { // verbose level 1 or more
         o->verbose++;
-        o->data = 0;
+        o->stat = 0;
       }
       else if (!strcmp(argv[i], "-vv") ||
                !strcmp(argv[i], "--more-verbose"))
       { // verbode level 2
         o->verbose = 2;
-        o->data    = 0;
+        o->stat    = 0;
       }
       else if (!strcmp(argv[i], "-vvv") ||
                !strcmp(argv[i], "--much-verbose"))
       { // verbode level 3
         o->verbose = 3;
-        o->data    = 0;
+        o->stat    = 0;
       }
-      else if (!strcmp(argv[i], "-D") ||
-               !strcmp(argv[i], "--data"))
+      else if (!strcmp(argv[i], "-S") ||
+               !strcmp(argv[i], "--stat"))
       { // output packet statistic to stdout
         o->verbose = 0;
-        o->data    = 1;
+        o->stat    = 1;
       }
       else if (!strcmp(argv[i], "-m") ||
-               !strcmp(argv[i], "--mode"))
-      { // flash mode
+               !strcmp(argv[i], "--reg-num"))
+      { // number of 74HC595 [1-2]
         if (++i >= argc) usage();
-        o->mode = atoi(argv[i]);
-        if (o->mode < 0) o->mode = 0;
+        o->num = atoi(argv[i]);
+        if (o->num < 1) o->num = 1;
+        if (o->num > 2) o->num = 2;
       }
       else if (!strcmp(argv[i], "-d") ||
                !strcmp(argv[i], "--spi-dev"))
@@ -230,13 +234,18 @@ static int timer_handler(void *context)
   if (1) //!!! FIXME
   {
     int i;
-    char buf[1024];
+    char buf[2];
   
-    //for (i = 0; i < 1024; i++)
-    //  buf[i] = 0x55;
-    buf[0] = (char) self->counter & 0xFF;
+    buf[0] = (char) ( self->counter       & 0xFF);
+    buf[1] = (char) ((self->counter >> 8) & 0xFF);
 
-    i = spi_write(spi, buf, 1);
+    if (o->negative)
+    {
+      buf[0] ^= 0xFF;
+      buf[1] ^= 0xFF;
+    }
+
+    i = spi_write(spi, buf, o->num);
     if (o->verbose >= 3)
       printf(">>> spi_write(1024) return %d\n", i);
   }
@@ -250,7 +259,7 @@ static int timer_handler(void *context)
   }
 
   // output delay statistics
-  if (self->state > 1 && o->data)
+  if (self->state > 1 && o->stat)
   { // #counter #daytime #dt_min #dt_max #dt
     printf("%10u %12.3f %12.3f %12.3f %12.3f\n",
            self->counter, daytime * 1e3,
@@ -295,15 +304,15 @@ int main(int argc, const char *argv[])
   if (o->verbose >= 1)
   {
     printf("--> SPILED start with next parameters:\n");
-    printf("-->   interval        = %i ms\n", o->interval);
-    printf("-->   verbose level   = %i\n",    o->verbose);
-    printf("-->   data mode       = %i\n",    o->data); // FIXME
-    printf("-->   flash mode      = %i\n",    o->mode);
-    printf("-->   SPI device name = '%s'\n",  o->device);
-    printf("-->   SPI max speed   = %i\n",    o->speed);
-    printf("-->   RCK GPIO num    = %i\n",    o->rck);
-    printf("-->   negative        = %s\n",    o->negative ? "yes" : "no");
-    printf("-->   real time       = %s\n",    o->realtime ? "yes" : "no");
+    printf("-->   interval          = %i ms\n", o->interval);
+    printf("-->   verbose level     = %i\n",    o->verbose);
+    printf("-->   stat mode         = %i\n",    o->stat);
+    printf("-->   number of 74HC595 = %i\n",    o->num);
+    printf("-->   SPI device name   = '%s'\n",  o->device);
+    printf("-->   SPI max speed     = %i\n",    o->speed);
+    printf("-->   RCK GPIO num      = %i\n",    o->rck);
+    printf("-->   negative          = %s\n",    o->negative ? "yes" : "no");
+    printf("-->   real time         = %s\n",    o->realtime ? "yes" : "no");
   }
   
   // show current day time
@@ -439,7 +448,7 @@ int main(int argc, const char *argv[])
   } // if (o->rck >= 0)
 
   // show delay statistics
-  fout = o->data ? stderr : stdout;
+  fout = o->stat ? stderr : stdout;
   dt_mid = self.dt_sum / ((long double) self.counter - 1);
   fprintf(fout, "--- SPILED statistics ---\n");
   fprintf(fout, "=> counter         = %u\n",   self.counter);
