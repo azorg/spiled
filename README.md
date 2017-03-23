@@ -1,4 +1,4 @@
-Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero
+Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 ================================================================
 
 ## Files:

@@ -1,5 +1,5 @@
 /*
- * Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero
+ * Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
  * File: "spiled.c"
  */
 
@@ -58,7 +58,7 @@ typedef struct self_ {
 static void usage()
 {
   fprintf(stderr,
-    "Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero\n"
+    "Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero\n"
     "Usage:  spiled [-options] [interval-ms]\n"
     "        spiled --help\n");
   exit(EXIT_FAILURE);
@@ -67,7 +67,7 @@ static void usage()
 static void help()
 {
   printf(
-    "Simple flash leds connected to 74HC595 via SPI on Orange Pi Zero\n"
+    "Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero\n"
     "Run:  spiled [-options] [interval-ms]\n"
     "Options:\n"
     "    -h|--help          - show this help\n"
