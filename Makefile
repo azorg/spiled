@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------------
 OUT_NAME    := spiled
 OUT_DIR     := .
-CLEAN_FILES := "$(OUT_DIR)/$(OUT_NAME).exe" a.out
+CLEAN_FILES := "$(OUT_DIR)/$(OUT_NAME).exe" a.out data.txt
 #----------------------------------------------------------------------------
 # 1-st way to select source files
 SRCS := spiled.c spi.c stimer.c sgpio.c
