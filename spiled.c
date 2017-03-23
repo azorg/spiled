@@ -25,7 +25,7 @@
 // GPIO channel connected to RCK by default (>=0 or -1 to unuse)
 #define RCK_GPIO 18
 
-// number of 74HC595 [1-2]
+// number of 74HC595 registors by default (1 or 2)
 #define REG_NUM 1
 //-----------------------------------------------------------------------------
 // command line options
@@ -33,7 +33,7 @@ typedef struct options_ {
   int interval;       // time interval [ms]
   int verbose;        // verbose level {0,1,2,3}
   int stat;           // output delay statistic to stdout {0|1}
-  int num;            // number of 74HC595 [1-2]
+  int num;            // number of 74HC595 registors (1 or 2)
   const char *device; // SPI device name like "/dev/spidev0.0"
   int speed;          // SPI max speed [Hz]
   int rck;            // GPIO channel connected to RCK (>=0 or -1 to unuse)
@@ -75,7 +75,7 @@ static void help()
     "   -vv|--more-verbose  - more verbose output (or use -v twice)\n"
     "  -vvv|--much-verbose  - much more verbose output (or use -v thrice)\n"
     "    -S|--stat          - output delay statistic to stdout (no verbose)\n"
-    "    -m|--reg-num       - number of 74HC595 [1-2]\n"
+    "    -m|--reg-num       - number of 74HC595 registors (1 or 2)\n"
     "    -d|--spi-dev       - SPI device name like '/dev/spidev0.0'\n"
     "    -s|--spi-speed     - SPI max speed [Hz]\n"
     "    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595"
@@ -96,7 +96,7 @@ static void parse_options(int argc, const char *argv[], options_t *o)
   o->interval  = TIMER_INTERVAL; // time interval [ms]
   o->verbose   = 0;              // verbose level {0,1,2,3}
   o->stat      = 0;              // output delay statistic to stdout {0|1}
-  o->num       = REG_NUM;        // number of 74HC595 [1-2]
+  o->num       = REG_NUM;        // number of 74HC595 registors (1 or 2)
   o->device    = SPI_DEVICE;     // SPI device name
   o->speed     = SPI_SPEED;      // SPI max speed [Hz]
   o->rck       = RCK_GPIO;       // GPIO channel connected to RCK
@@ -139,7 +139,7 @@ static void parse_options(int argc, const char *argv[], options_t *o)
       }
       else if (!strcmp(argv[i], "-m") ||
                !strcmp(argv[i], "--reg-num"))
-      { // number of 74HC595 [1-2]
+      { // number of 74HC595 registors (1 or 2)
         if (++i >= argc) usage();
         o->num = atoi(argv[i]);
         if (o->num < 1) o->num = 1;

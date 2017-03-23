@@ -29,7 +29,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
  |  14  |   SCLK | 23 | 24 | CE0     | 13   |
  |      |     0v | 25 | 26 | GPIO.11 | 10   |
 
-## 74HC595 DIP-16 schematic:
+## 74HC595 DIP16 schematic:
 
  | Signal | Pin | Pin | Signal |          Description           |
  |:------:|:---:|:---:|:------:| ------------------------------ |
@@ -42,7 +42,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
  |   QH   |  7  | 10  |  nSCLR | nSCLR   - neg.reset shift reg. |
  |   GND  |  8  |  9  |  QH'   | QH'     - serial data output   |
 
-## How to connect 74HC595 (one or two) to Orange Pi Zero
+## How to connect 74HC595 registor(s) (one or two) to Orange Pi Zero
 
   | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
   |:--------------:|:-----------:| ------------------------ |:--------------:|
@@ -52,7 +52,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
   |      SCK       |     11      | 23                       | SCLK           |
   |      RCK       |     12      | 18                       | GPIO-18        |
   |      nG        |     13      | any 0V/GND               | 0V             |
-  |      nSCLR     |     10      | any VCC via pull up res. | 3.3V or 5V     |
+  |      nSCLR     |     10      | any 3.3V via pullup R    | 3.3V           |
   |      QH'       |      9      | to SI of second 74HC595  | -              |
 
 ## How to connect LEDs to 74HC595 (one or two)
@@ -85,7 +85,7 @@ Options:
    -vv|--more-verbose  - more verbose output (or use -v twice)
   -vvv|--much-verbose  - much more verbose output (or use -v thrice)
     -S|--stat          - output delay statistic to stdout (no verbose)
-    -m|--reg-num       - number of 74HC595 [1-2]
+    -m|--reg-num       - number of 74HC595 registors (1 or 2)
     -d|--spi-dev       - SPI device name like '/dev/spidev0.0'
     -s|--spi-speed     - SPI max speed [Hz]
     -g|--rck-gpio      - GPIO channel connected to RCK 74HC595 (-1 to unuse)
