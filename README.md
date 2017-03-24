@@ -3,13 +3,17 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 
 ## Files:
 
+ `spiled.c` - main applicaton module
+
  `stimer.h/stimer.c` - simple Linux timer wrapper
 
  `sgpio.h/sgpio.c` - simple GPIO wrappers to input/output over `/sys/class/gpio`
 
  `spi.h/spi.c` - simple Linux wrapper for access to `/dev/spidev`
 
- `spiled.c` - main applicaton module
+ `Makefie` - make file to build example application (`spiled`)
+
+ `Makefile.skel` - my "universal" Makefile for many projects
 
 ## Orange Pi Zero 26 pin connector:
 
@@ -62,9 +66,18 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 
 ## How to build application
 
- Run `make`:
+ Install `make`, `gcc` and `git` by apt-get or apitude on you Orange Pi Zero
 
-> make
+ Clone this git repository from github by git:
+
+```
+  $ git clone https://github.com/azorg/spiled.git
+  $ cd spiled 
+```
+
+ Run `make` in work directory:
+
+> $ make
 
   Or use `_make.sh`:
 
@@ -73,9 +86,9 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 ## How to install and run, programm command line options
 
  Run `make install` to install to `/usr/local/bin`
- or run `spiled` from current directory.
+ or run `./spiled` from current directory.
 
- Run from root or via sudo.
+ Run from root or use sudo.
 
 ```
 Run:  spiled [-options] [interval-ms]

@@ -8,6 +8,7 @@
 #include <string.h>    // strlen(), memset(), strerror()
 #include <poll.h>      // poll()
 #include <sys/epoll.h> // epoll()
+#include <stdio.h>     // snprintf()
 //----------------------------------------------------------------------------
 // write `size` bytes to stream `fd` from `buf` at once
 int sgpio_write(int fd, const char *buf, int size)

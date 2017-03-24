@@ -204,6 +204,7 @@ static int timer_handler(void *context)
   //stimer_t      *timer  = &self->timer;
   double          daytime = stimer_daytime();
   double          dt      = 0.;
+  int i;
   
   if (self->state > 0)
   {
@@ -233,7 +234,6 @@ static int timer_handler(void *context)
   // write to SPI device
   if (1) //!!! FIXME
   {
-    int i;
     char buf[2];
   
     buf[1] = (char) ( self->counter       & 0xFF);
@@ -255,11 +255,14 @@ static int timer_handler(void *context)
   }
   
   // form impulse of storage register clock (RCK)
-  if (o->rck >= 0 && 1) //!!! FIXME
+  if (o->rck >= 0)
   {
-    sgpio_set(gpio, 1); // up   GPIO RCK pin
-    sgpio_set(gpio, 0); // down GPIO RCK pin
-    //!!!sgpio_set(gpio, self->counter & 1);
+    i = sgpio_set(gpio, 1); // up   GPIO RCK pin
+    if (i >= 0)
+        sgpio_set(gpio, 0); // down GPIO RCK pin
+    
+    if (o->verbose >= 3)
+      printf(">>> sgpio_set() return %d\n", i);
   }
 
   // output delay statistics

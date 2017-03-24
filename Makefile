@@ -12,12 +12,13 @@ HDRS := spi.h stimer.h sgpio.h
 #SRC_DIRS := .
 #HDR_DIRS := .
 #----------------------------------------------------------------------------
-DEFS    := -DSPI_DEBUG -DSGPIO_DEBUG
+#DEFS   := -DSPI_DEBUG -DSGPIO_DEBUG
 #OPTIM  := -g -O0
+DEFS    := 
 OPTIM   := -Os
 WARN    := -Wall -Wno-pointer-to-int-cast
 CFLAGS  := $(WARN) $(OPTIM) $(DEFS) $(CFLAGS) -pipe
-LDFLAGS := -lm -lrt -ldl -lpthread $(LDFLAGS)
+LDFLAGS := -lm -lrt $(LDFLAGS)
 PREFIX  := /usr/local
 #----------------------------------------------------------------------------
 #_AS  := @as
