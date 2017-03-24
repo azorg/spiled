@@ -37,6 +37,7 @@ typedef struct options_ {
   const char *device; // SPI device name like "/dev/spidev0.0"
   int speed;          // SPI max speed [Hz]
   int rck;            // GPIO channel connected to RCK (>=0 or -1 to don't use)
+  int alt;            // alternate mode number (>=0)
   int negative;       // negative output {0|1}
   int realtime;       // real time mode {0|1}
 } options_t;
@@ -80,6 +81,7 @@ static void help()
     "    -s|--spi-speed     - SPI max speed [Hz]\n"
     "    -g|--rck-gpio      - GPIO channel connected to RCK 74HC595"
                               " (-1 to don't use)\n"
+    "    -a|--alt-num       - alternate mode number (>=0)\n"
     "    -n|--negative      - negative output\n"
     "    -r|--real-time     - real time mode (root required)\n"
     "interval-ms            - timer interval in ms (%i by default)\n",
@@ -100,6 +102,7 @@ static void parse_options(int argc, const char *argv[], options_t *o)
   o->device    = SPI_DEVICE;     // SPI device name
   o->speed     = SPI_SPEED;      // SPI max speed [Hz]
   o->rck       = RCK_GPIO;       // GPIO channel connected to RCK
+  o->alt       = 0;              // alternate mode number (>=0)
   o->negative  = 0;              // negative output {0|1}
   o->realtime  = 0;              // real time mode {0|1}
 
@@ -164,6 +167,12 @@ static void parse_options(int argc, const char *argv[], options_t *o)
         if (++i >= argc) usage();
         o->rck = atoi(argv[i]);
       }
+      else if (!strcmp(argv[i], "-a") ||
+               !strcmp(argv[i], "--alt-num"))
+      { // alternate mode number
+        if (++i >= argc) usage();
+        o->alt = atoi(argv[i]);
+      }
       else if (!strcmp(argv[i], "-n") ||
                !strcmp(argv[i], "--negative"))
       { // negative
@@ -204,7 +213,8 @@ static int timer_handler(void *context)
   //stimer_t      *timer  = &self->timer;
   double          daytime = stimer_daytime();
   double          dt      = 0.;
-  int i;
+  int             i;
+  uint8_t         buf[2];
   
   if (self->state > 0)
   {
@@ -231,28 +241,50 @@ static int timer_handler(void *context)
     if (self->dt_min > dt) self->dt_min = dt;
   }
 
-  // write to SPI device
-  if (1) //!!! FIXME
-  {
-    char buf[2];
-  
-    buf[1] = (char) ( self->counter       & 0xFF);
-    buf[0] = (char) ((self->counter >> 8) & 0xFF);
-
-    if (o->negative)
-    {
-      buf[0] ^= 0xFF;
-      buf[1] ^= 0xFF;
-    }
-
+  // fill output data
+  if (o->alt == 0)
+  { // mode #0
+    buf[1] = (uint8_t) ( self->counter       & 0xFF);
+    buf[0] = (uint8_t) ((self->counter >> 8) & 0xFF);
+  }  
+  else if (o->alt == 1)
+  { // mode #1
     if (o->num == 1)
-      i = spi_write(spi, &buf[1], 1);
+    {
+      buf[0] = 0;
+      if (self->counter & 0x8)
+        buf[1] = 0x01 << (self->counter & 0x7);
+      else
+        buf[1] = 0x80 >> (self->counter & 0x7);
+    }
     else // o->num == 2
-      i = spi_write(spi, &buf[0], 2);
-
-    if (o->verbose >= 3)
-      printf(">>> spi_write(%d) return %d\n", o->num, i);
+    {
+      uint16_t reg;
+      if (self->counter & 0x10)
+        reg = 0x0001 << (self->counter & 0xF);
+      else
+        reg = 0x8000 >> (self->counter & 0xF);
+      
+      buf[1] = (uint8_t) ( reg       & 0xFF);
+      buf[0] = (uint8_t) ((reg >> 8) & 0xFF);
+    }
   }
+
+  // invert data in negative mode
+  if (o->negative)
+  {
+    buf[0] ^= 0xFF;
+    buf[1] ^= 0xFF;
+  }
+
+  // write data to SPI device
+  if (o->num == 1)
+    i = spi_write(spi, (char*) &buf[1], 1);
+  else // o->num == 2
+    i = spi_write(spi, (char*) &buf[0], 2);
+
+  if (o->verbose >= 3)
+    printf(">>> spi_write(%d) return %d\n", o->num, i);
   
   // form impulse of storage register clock (RCK)
   if (o->rck >= 0)

@@ -68,7 +68,7 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 
  Install `make`, `gcc` and `git` by apt-get or apitude on you Orange Pi Zero
 
- Clone this git repository from github by git:
+ Clone this git repository from github:
 
 ```
   $ git clone https://github.com/azorg/spiled.git
@@ -102,6 +102,7 @@ Options:
     -d|--spi-dev       - SPI device name like '/dev/spidev0.0'
     -s|--spi-speed     - SPI max speed [Hz]
     -g|--rck-gpio      - GPIO channel connected to RCK 74HC595 (-1 to don't use)
+    -a|--alt-num       - alternate mode number (>=0)
     -n|--negative      - negative output
     -r|--real-time     - real time mode (root required)
 interval-ms            - timer interval in ms (100 by default)
