@@ -1,4 +1,5 @@
 Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
+and Beaglebone Black
 ================================================================
 
 ## Files:
@@ -48,16 +49,48 @@ Simple flash LEDs connected to 74HC595 via SPI on Orange Pi Zero
 
 ## How to connect 74HC595 registor(s) (one or two) to Orange Pi Zero
 
-  | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
-  |:--------------:|:-----------:| ------------------------ |:--------------:|
-  |      GND       |      8      | 25,20,14,9 or 6          | 0V             |
-  |      VCC       |     16      | 1 or 17                  | 3.3V           |
-  |      SI        |     14      | 19                       | MOSI           |
-  |      SCK       |     11      | 23                       | SCLK           |
-  |      RCK       |     12      | 18                       | GPIO-18        |
-  |      nG        |     13      | any 0V/GND               | 0V             |
-  |      nSCLR     |     10      | any 3.3V via pullup R    | 3.3V           |
-  |      QH'       |      9      | to SI of second 74HC595  | -              |
+ | 74HC595 signal | 74HC595 pin | Pi Zero pin              | Pi zero signal |
+ |:--------------:|:-----------:| ------------------------ |:--------------:|
+ |      GND       |      8      | 25,20,14,9 or 6          | 0V             |
+ |      VCC       |     16      | 1 or 17                  | 3.3V           |
+ |      SI        |     14      | 19                       | MOSI           |
+ |      SCK       |     11      | 23                       | SCLK           |
+ |      RCK       |     12      | 18                       | GPIO-18        |
+ |      nG        |     13      | any 0V/GND               | 0V             |
+ |      nSCLR     |     10      | any 3.3V via pullup R    | 3.3V           |
+ |      QH'       |      9      | to SI of second 74HC595  | -              |
+
+## How to connect 74HC595 registor(s) to Beaglebone Black (BBB)
+
+ | 74HC595 signal | 74HC595 pin | BBB pin                  | BBB signal     |
+ |:--------------:|:-----------:| ------------------------ |:--------------:|
+ |      GND       |      8      | any 0V/GND               | DGND           |
+ |      VCC       |     16      | P9-3 or P9-4             | VDD_3V3        |
+ |      SI        |     14      | P9-18                    | SPI0_D1        |
+ |      SCK       |     11      | P9-20                    | SPI0_SCLK      |
+ |      RCK       |     12      | P9-23                    | GPIO-49        |
+ |      nG        |     13      | any 0V/GND               | DGND           |
+ |      nSCLR     |     10      | any 3.3V                 | VDD_3V3        |
+ |      QH'       |      9      | to SI of second 74HC595  | -              |
+  
+74HC595 can be sourced from 5V pins of BBB as well (SYS_5V)
+
+BBB SPI pins need to be pinmuxed to SPI mode:
+```
+config-pin P9_18 spi  
+config-pin P9_22 spi_sclk
+config-pin P9_23 gpio
+```
+
+or permanently enable SPI with DTS overlay in /boot/uEnv.txt:
+```
+uboot_overlay_addr4=/lib/firmware/BB-SPIDEV0-00A0.dtbo
+```
+
+Command for BBB (sudo is needed for GPIO access):
+```
+sudo ./spiled -d /dev/spidev0.0 -g 49
+```
 
 ## How to connect LEDs to 74HC595 (one or two)
 
