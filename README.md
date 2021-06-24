@@ -89,7 +89,7 @@ uboot_overlay_addr4=/lib/firmware/BB-SPIDEV0-00A0.dtbo
 
 Command for BBB (sudo is needed for GPIO access):
 ```
-sudo ./spiled -d /dev/spidev0.0 -g 49
+sudo ./spiled -d /dev/spidev0.1 -g 49
 ```
 
 ## How to connect LEDs to 74HC595 (one or two)
